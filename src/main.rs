@@ -30,4 +30,13 @@ fn main() {
         array,
         common_collections::mode(&array).unwrap()
     );
+
+    let plstr = String::from(
+        "this is a string containing a few words and will be translated into pig Latin",
+    );
+    println!(
+        "common_collections::to_pig_latin({}) = \"{}\"",
+        &plstr,
+        common_collections::to_pig_latin(&plstr)
+    );
 }
