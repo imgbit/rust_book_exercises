@@ -39,4 +39,15 @@ fn main() {
         &plstr,
         common_collections::to_pig_latin(&plstr)
     );
+
+    let mut er: common_collections::EmployeesRecord = Default::default();
+    er.add_employee("Joe", "Sales");
+    er.add_employee("John", "Sales");
+    er.add_employee("Jake", "Sales");
+    er.add_employee("Mia", "HR");
+    er.add_employee("Molly", "HR");
+    er.add_employee("Megan", "HR");
+    println!(
+        "common_collections::EmployeesRecord:\n{}\nnumber of departments: {}\nemployees in HR: {:?}\nall employees: {:?}",
+        er.to_string(), er.len(), er.department_employees("HR").unwrap(), er.all_employees().unwrap());
 }

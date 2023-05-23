@@ -64,9 +64,121 @@ pub fn to_pig_latin(text: &str) -> String {
     retstr.trim_start_matches(' ').to_string()
 }
 
+#[derive(Default)]
+pub struct EmployeesRecord {
+    record: HashMap<String, Vec<String>>,
+}
+
+impl EmployeesRecord {
+    pub fn len(&self) -> usize {
+        self.record.len()
+    }
+
+    pub fn add_employee(&mut self, name: &str, department: &str) -> bool {
+        if name.len() <= 0 || department.len() <= 0 {
+            return false;
+        }
+
+        self.record
+            .entry(department.to_string())
+            .or_insert_with(|| Vec::new())
+            .push(name.to_string());
+
+        true
+    }
+
+    pub fn department_employees(&self, department: &str) -> Option<Vec<String>> {
+        let value = self.record.get(department);
+
+        match value {
+            Some(v) => {
+                let sortedvec = {
+                    let mut vecclone = v.clone();
+                    vecclone.sort();
+                    vecclone
+                };
+                return Some(sortedvec);
+            }
+            None => return None,
+        }
+    }
+
+    pub fn all_employees(&self) -> Option<Vec<String>> {
+        let mut retvec: Vec<String> = vec![];
+        for (_, value) in &self.record {
+            for v in value {
+                retvec.push(v.clone());
+            }
+        }
+
+        retvec.sort();
+        Some(retvec)
+    }
+}
+
+impl std::fmt::Display for EmployeesRecord {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        writeln!(f, "EmployeesRecord:")?;
+
+        for (key, value) in &self.record {
+            let sortedvec = {
+                let mut vecclone = value.clone();
+                vecclone.sort();
+                vecclone
+            };
+
+            writeln!(f, "   {}:", key)?;
+            for v in sortedvec {
+                writeln!(f, "       {}", v)?;
+            }
+        }
+
+        Ok(())
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn test_employees_record() {
+        let mut er: EmployeesRecord = Default::default();
+        assert_eq!(er.add_employee("Joe", "Sales"), true);
+        assert_eq!(er.add_employee("John", "Sales"), true);
+        assert_eq!(er.add_employee("Jake", "Sales"), true);
+        assert_eq!(er.add_employee("Mia", "HR"), true);
+        assert_eq!(er.add_employee("Molly", "HR"), true);
+        assert_eq!(er.add_employee("Megan", "HR"), true);
+        assert_eq!(er.len(), 2);
+
+        let employees = er.department_employees("HR").unwrap();
+        assert_eq!(employees.len(), 3);
+        // should be sorted alphabetically
+        assert_eq!(employees[0], "Megan".to_string());
+        assert_eq!(employees[1], "Mia".to_string());
+        assert_eq!(employees[2], "Molly".to_string());
+
+        let employees = er.department_employees("Sales").unwrap();
+        assert_eq!(employees.len(), 3);
+        // should be sorted alphabetically
+        assert_eq!(employees[0], "Jake".to_string());
+        assert_eq!(employees[1], "Joe".to_string());
+        assert_eq!(employees[2], "John".to_string());
+
+        assert_eq!(er.add_employee("", "B"), false);
+        assert_eq!(er.add_employee("A", ""), false);
+
+        let employees = er.all_employees().unwrap();
+        assert_eq!(employees.len(), 6);
+        // should be sorted alphabetically
+        assert_eq!(employees[0], "Jake".to_string());
+        assert_eq!(employees[1], "Joe".to_string());
+        assert_eq!(employees[2], "John".to_string());
+        assert_eq!(employees[3], "Megan".to_string());
+        assert_eq!(employees[4], "Mia".to_string());
+        assert_eq!(employees[5], "Molly".to_string());
+    }
 
     #[test]
     fn test_median() {
